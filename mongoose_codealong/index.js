@@ -1,6 +1,7 @@
 const express = require('express');
 const app = express();
 const mongoose = require('mongoose');
+const comment = require('./schemas/comment');
 const Post = require('./schemas/post');
 const User = require('./schemas/user');
 const Port = 8000;
@@ -132,6 +133,186 @@ app.delete('/users/:email', (req, res) => {
     .then(response => {
         console.log('This was delete', response);
         res.json({ message: `${req.params.email} was deleted`});
+    })
+    .catch(error => {
+        console.log('error', error) 
+        res.json({ message: "Error ocurred, please try again" });
+    })
+});
+
+
+//======================================POST
+
+
+
+app.get('/posts', (req, res) => {
+    Post.find({})
+    .then(posts => {
+        console.log('All posts', posts);
+        res.json({ posts: posts });
+    })
+    .catch(error => { 
+        console.log('error', error);
+        res.json({ message: "Error ocurred, please try again" });
+    });
+});
+
+
+app.get('/posts/:title', (req, res) => {
+    console.log('find Post by', req.params.title)
+    Post.findOne({
+        title: req.params.title
+    })
+    .then(post => {
+        console.log('Here is the Post', post.title);
+        res.json({ post: post });
+    })
+    .catch(error => { 
+        console.log('error', error);
+        res.json({ message: "Error ocurred, please try again" });
+    });
+});
+
+
+app.post('/posts', (req, res) => {
+    Post.create({
+        title: req.body.title,
+        body: req.body.body
+    })
+    .then(post => {
+        console.log('New Post =>>', post);
+        res.json({ post: post });
+    })
+    .catch(error => { 
+        console.log('error', error) 
+        res.json({ message: "Error ocurred, please try again" })
+    });
+});
+
+
+app.put('/posts/:title', (req, res) => {
+    console.log('route is being on PUT')
+    Post.findOne({ title: req.params.title })
+    .then(foundPost => {
+        console.log('Post found', foundPost);
+        Post.findOneAndUpdate({ title: req.params.title }, 
+        { 
+            title: req.body.title ? req.body.title : foundPost.title,
+            body: req.body.body ? req.body.body : foundPost.body
+        })
+        .then(post => {
+            console.log('Post was updated', post);
+            res.redirect(`/posts/${req.params.title}`)
+        })
+        .catch(error => {
+            console.log('error', error) 
+            res.json({ message: "Error ocurred, please try again" })
+        })
+    })
+    .catch(error => {
+        console.log('error', error) 
+        res.json({ message: "Error ocurred, please try again" })
+    })
+    
+});
+
+
+
+app.delete('/posts/:title', (req, res) => {
+    Post.findOneAndRemove({ title: req.params.title })
+    .then(response => {
+        console.log('This was delete', response);
+        res.json({ message: `${req.params.title} was deleted`});
+    })
+    .catch(error => {
+        console.log('error', error) 
+        res.json({ message: "Error ocurred, please try again" });
+    })
+});
+
+
+
+//===========================Comments
+
+
+app.get('/comment', (req, res) => {
+    Comments.find({})
+    .then(comment => {
+        console.log('All comment', comment);
+        res.json({ comment: comment });
+    })
+    .catch(error => { 
+        console.log('error', error);
+        res.json({ message: "Error ocurred, please try again" });
+    });
+});
+
+
+app.get('/comment/:header', (req, res) => {
+    console.log('find user by', req.params.header)
+    Comments.findOne({
+        header: req.params.header
+    })
+    .then(comment => {
+        console.log('Here is the user', comment.title);
+        res.json({ comment: comment });
+    })
+    .catch(error => { 
+        console.log('error', error);
+        res.json({ message: "Error ocurred, please try again" });
+    });
+});
+
+
+app.post('/comment', (req, res) => {
+    Comments.create({
+        header: req.body.header,
+        content: req.body.content
+    })
+    .then(comment => {
+        console.log('New comment =>>', comment);
+        res.json({ comment: comment });
+    })
+    .catch(error => { 
+        console.log('error', error) 
+        res.json({ message: "Error ocurred, please try again" })
+    });
+});
+
+
+app.put('/comment/:header', (req, res) => {
+    console.log('route is being on PUT')
+    Comments.findOne({ header: req.params.header })
+    .then(foundComments => {
+        console.log('Comments found', foundComments);
+        Comments.findOneAndUpdate({ header: req.params.header }, 
+        { 
+            header: req.body.header ? req.body.header : foundComments.header,
+            body: req.body.body ? req.body.body : foundComments.body
+        })
+        .then(comment => {
+            console.log('Comments was updated', comment);
+            res.redirect(`/comment/${req.params.header}`)
+        })
+        .catch(error => {
+            console.log('error', error) 
+            res.json({ message: "Error ocurred, please try again" })
+        })
+    })
+    .catch(error => {
+        console.log('error', error) 
+        res.json({ message: "Error ocurred, please try again" })
+    })
+    
+});
+
+
+
+app.delete('/comment/:header', (req, res) => {
+    Comments.findOneAndRemove({ header: req.params.header })
+    .then(response => {
+        console.log('This was delete', response);
+        res.json({ message: `${req.params.header} was deleted`});
     })
     .catch(error => {
         console.log('error', error) 
