@@ -1,13 +1,11 @@
 const mongoose = require('mongoose');
-const { commentSchema } = require('./comment');
 
 const postSchema = new mongoose.Schema({
     title: String,
     body: String,
-    comments: [commentSchema],
-    refComments: [{
+    comments: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Comments'
+        ref: 'Comment'
     }]
 });
 
