@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const comment = require('./schemas/comment');
 const Post = require('./schemas/post');
 const User = require('./schemas/user');
+const Comments = require('./schemas/comment');
 const Port = 8000;
 const mongoDB = 'mongodb://127.0.0.1/mongoose-codealong'
 
@@ -264,7 +265,7 @@ app.get('/comment/:header', (req, res) => {
 });
 
 
-app.post('/comment', (req, res) => {
+app.post('/comments', (req, res) => {
     Comments.create({
         header: req.body.header,
         content: req.body.content
@@ -280,7 +281,7 @@ app.post('/comment', (req, res) => {
 });
 
 
-app.put('/comment/:header', (req, res) => {
+app.put('/comments/:header', (req, res) => {
     console.log('route is being on PUT')
     Comments.findOne({ header: req.params.header })
     .then(foundComments => {
@@ -288,7 +289,7 @@ app.put('/comment/:header', (req, res) => {
         Comments.findOneAndUpdate({ header: req.params.header }, 
         { 
             header: req.body.header ? req.body.header : foundComments.header,
-            body: req.body.body ? req.body.body : foundComments.body
+            content: req.body.content ? req.body.content : foundComments.content
         })
         .then(comment => {
             console.log('Comments was updated', comment);
@@ -308,7 +309,7 @@ app.put('/comment/:header', (req, res) => {
 
 
 
-app.delete('/comment/:header', (req, res) => {
+app.delete('/comments/:header', (req, res) => {
     Comments.findOneAndRemove({ header: req.params.header })
     .then(response => {
         console.log('This was delete', response);
