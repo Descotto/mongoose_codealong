@@ -218,10 +218,24 @@ app.delete('/posts/:id', (req, res) => {
 //===========================Comments
 
 
+
 app.get('/comments', (req, res) => {
     Comment.find({})
+    .then(comments => {
+        console.log('All comments', comments);
+        res.json({ comments: comments });
+    })
+    .catch(error => { 
+        console.log('error', error);
+        res.json({ message: "Error ocurred, please try again" });
+    });
+});
+
+app.get('/comments/:id', (req, res) => {
+    console.log('find comment by ID', req.params.id);
+    Comment.findOne({ _id: mongoose.Types.ObjectId(req.params.id) })
     .then(comment => {
-        console.log('All comment', comment);
+        console.log('Here is the comment', comment);
         res.json({ comment: comment });
     })
     .catch(error => { 
@@ -230,18 +244,8 @@ app.get('/comments', (req, res) => {
     });
 });
 
-
-app.get('/comments/:id', (req, res) => {
-    console.log('find user by', req.params.id)
-    Comment.findById(req.params.id)
-    .then(comment => {
-        console.log('Here is the user', comment.title);
-        res.json({ comment: comment });
-    })
-    .catch(error => { 
-        console.log('error', error);
-        res.json({ message: "Error ocurred, please try again" });
-    });
+app.get('/posts/:id/comments', (req, res) => {
+    Post.findById(req.params.id).populate('comments')
 });
 
 
@@ -272,12 +276,12 @@ app.post('/posts/:id/comments', (req, res) => {
 });
 
 
-app.put('/comments/:header', (req, res) => {
+app.put('/comments/:id', (req, res) => {
     console.log('route is being on PUT')
-    Comments.findOne({ header: req.params.header })
+    Comment.findById(req.params.id)
     .then(foundComments => {
         console.log('Comments found', foundComments);
-        Comments.findOneAndUpdate({ header: req.params.header }, 
+        Comment.findByIdAndUpdate(req.params.id, 
         { 
             header: req.body.header ? req.body.header : foundComments.header,
             content: req.body.content ? req.body.content : foundComments.content
@@ -300,8 +304,8 @@ app.put('/comments/:header', (req, res) => {
 
 
 
-app.delete('/comments/:header', (req, res) => {
-    Comments.findOneAndRemove({ header: req.params.header })
+app.delete('/comments/:id', (req, res) => {
+    Comments.findByIdAndRemove(req.params.id)
     .then(response => {
         console.log('This was delete', response);
         res.json({ message: `${req.params.header} was deleted`});
